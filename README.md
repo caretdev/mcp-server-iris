@@ -2,9 +2,12 @@
 
 ## Overview
 
-A Model Context Protocol server for InterSystems IRIS database interaction and automation.
+A [Model Context Protocol](https://modelcontextprotocol.io/introduction) server for InterSystems IRIS database interaction and automation.
 
 ## Configure Claude
+
+- [Claude Desktop](https://claude.ai/download)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ```json
 {
