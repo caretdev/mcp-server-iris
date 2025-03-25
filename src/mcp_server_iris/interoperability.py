@@ -125,8 +125,24 @@ def init(server, logger):
         )
         iris = ctx.request_context.lifespan_context["iris"]
         raise_on_error(
-            iris, iris.classMethodString("Ens.Director", "StartProduction", name)
+            iris,
+            iris.classMethodString(
+                "Ens.Director", "StartProduction", *([name] if name else [])
+            ),
         )
+        refname = IRISReference(iris)
+        name and refname.setValue(name)
+        refstatus = IRISReference(iris)
+        status = iris.classMethodString(
+            "Ens.Director", "GetProductionStatus", refname, refstatus
+        )
+        if not name:
+            name = refname.getValue()
+        if (
+            status != "1"
+            or ProductionStatus(int(refstatus.getValue())) != ProductionStatus.Running
+        ):
+            raise ValueError(f"Production {name} not started.")
         return "Started production"
 
     @server.tool(description="Stop an Interoperability Production")
@@ -139,7 +155,9 @@ def init(server, logger):
         iris = ctx.request_context.lifespan_context["iris"]
         raise_on_error(
             iris,
-            iris.classMethodString("Ens.Director", "StopProduction", timeout, force),
+            iris.classMethodString(
+                "Ens.Director", "StopProduction", timeout or 10, force
+            ),
         )
         return "Stopped production"
 
@@ -212,3 +230,16 @@ order by id desc
             for row in cur.fetchall():
                 logs.append(f"{row[0]} {row[1]} {row[2]} {row[3]}")
         return "\n".join(logs)
+
+    @server.tool(description="Get Interoperability Production queues")
+    async def interoperability_production_queues(
+        ctx: Context,
+    ) -> str:
+        queues = []
+        db = ctx.request_context.lifespan_context["db"]
+        with db.cursor() as cur:
+            sql = "select * from Ens.Queue_Enumerate()"
+            cur.execute(sql)
+            rows = cur.fetchall()
+            queues = [", ".join([f"{cell}" for cell in row]) for row in rows]
+        return "\n".join(queues)
