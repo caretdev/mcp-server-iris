@@ -28,3 +28,5 @@ A [Model Context Protocol](https://modelcontextprotocol.io/introduction) server 
   }
 }
 ```
+
+![ClaudeIRISInteroperability](https://github.com/user-attachments/assets/ec5b90e6-1cd3-467a-8875-72a13606a747)
