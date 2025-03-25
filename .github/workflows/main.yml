@@ -22,7 +22,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
+      - name: Install dependencies
+        id: set-version
+        run: |
+          VERSION=$(grep version pyproject.toml | cut -d=  -f2 | tr -d '[:blank:]' | tr -d '"')
+          [ $GITHUB_EVENT_NAME == 'push' ] && VERSION+=b && VERSION+=$(($(git tag -l "*$VERSION*" | cut -db -f2 | sort -n | tail -1)+1))
+          [ $GITHUB_EVENT_NAME == 'release' ] && VERSION=${{ github.event.release.tag_name }} && VERSION=${VERSION/v/}
+          echo VERSION = $VERSION
+          sed -ie "s/version = .*/version = $VERSION/" pyproject.toml
       - name: Build release distributions
         run: |
           # NOTE: put your own distribution build steps here.
