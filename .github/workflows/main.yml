@@ -30,6 +30,7 @@ jobs:
           [ $GITHUB_EVENT_NAME == 'release' ] && VERSION=${{ github.event.release.tag_name }} && VERSION=${VERSION/v/}
           echo VERSION = $VERSION
           sed -ie "s/version = .*/version = \"$VERSION\"/" pyproject.toml
+          echo version=$VERSION >> $GITHUB_OUTPUT
       - name: Build release distributions
         run: |
           # NOTE: put your own distribution build steps here.
