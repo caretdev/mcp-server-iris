@@ -25,3 +25,5 @@ A Model Context Protocol server for InterSystems IRIS database interaction and a
   }
 }
 ```
+
+![ClaudeIRISInteroperability-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ff0e397c-dd0f-44d8-a963-677462c89b41)
