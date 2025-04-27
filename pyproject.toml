@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-iris"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Model Context Protocol server for InterSystems IRIS."
 readme = "README.md"
 requires-python = ">=3.10"
