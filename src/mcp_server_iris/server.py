@@ -35,6 +35,10 @@ async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
         db = irisnative.connect(**config)
         iris = irisnative.createIRIS(db)
         yield {"db": db, "iris": iris}
+    except Exception:
+        db = None
+        iris = None
+        yield {"db": db, "iris": iris}
     finally:
         if db:
             db.close()
@@ -148,7 +152,7 @@ async def execute_sql(
 ) -> list[types.TextContent]:
     # params = arguments.get("params", [])
     logger.info(f"Executing SQL query: {query}")
-    conn = ctx.request_context.lifespan_context["db"]
+    conn = ctx.db
     with conn.cursor() as cursor:
         cursor.execute(query, params)
         # limit by 100 rows

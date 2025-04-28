@@ -63,7 +63,7 @@ def init(server, logger):
             raise ValueError(
                 "Production name must in format packagenamespace.productionname, where packagenamespace can have multiple parts separated by dots"
             )
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         with transaction(iris):
             prod = iris.classMethodObject(
                 "%Dictionary.ClassDefinition", "%OpenId", name
@@ -86,7 +86,7 @@ def init(server, logger):
         full_status: bool = False,
     ) -> str:
         logger.info("Interoperability Production Status" + f": {name}" if name else "")
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         refname = IRISReference(iris)
         refname.setValue(name)
         refstatus = IRISReference(iris)
@@ -123,7 +123,7 @@ def init(server, logger):
         logger.info(
             "Starting Interoperability Production" + f": {name}" if name else "."
         )
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         raise_on_error(
             iris,
             iris.classMethodString(
@@ -152,7 +152,7 @@ def init(server, logger):
         force: bool = False,
     ) -> str:
         logger.info("Sopping Interoperability Production.")
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         raise_on_error(
             iris,
             iris.classMethodString(
@@ -166,7 +166,7 @@ def init(server, logger):
         ctx: Context,
     ) -> str:
         logger.info("Recovering Interoperability Production")
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         raise_on_error(
             iris, iris.classMethodString("Ens.Director", "RecoverProduction")
         )
@@ -177,7 +177,7 @@ def init(server, logger):
         ctx: Context,
     ) -> str:
         logger.info("Checking if Interoperability Production needs update")
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         reason = IRISReference(iris)
         result = iris.classMethodBoolean(
             "Ens.Director", "ProductionNeedsUpdate", reason
@@ -192,7 +192,7 @@ def init(server, logger):
         timeout: int = None,
         force: bool = False,
     ) -> str:
-        iris = ctx.request_context.lifespan_context["iris"]
+        iris = ctx.iris
         raise_on_error(
             iris,
             iris.classMethodString("Ens.Director", "UpdateProduction", timeout, force),
@@ -215,7 +215,7 @@ def init(server, logger):
         log_type_alert and log_type.append(LogType.Alert.value)
         log_type_error and log_type.append(LogType.Error.value)
         log_type_warning and log_type.append(LogType.Warning.value)
-        db = ctx.request_context.lifespan_context["db"]
+        db = ctx.db
         with db.cursor() as cur:
             sql = f"""
 select top ? TimeLogged , %External(Type) Type, ConfigName, Text
@@ -236,7 +236,7 @@ order by id desc
         ctx: Context,
     ) -> str:
         queues = []
-        db = ctx.request_context.lifespan_context["db"]
+        db = ctx.db
         with db.cursor() as cur:
             sql = "select * from Ens.Queue_Enumerate()"
             cur.execute(sql)
