@@ -52,6 +52,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
+      - uses: actions/checkout@v4
+        if: github.event_name == 'release'
+        with:
+          ref: master
       - name: Bump version
         if: github.event_name == 'release'
         run: |
