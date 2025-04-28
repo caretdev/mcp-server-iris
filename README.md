@@ -1,5 +1,9 @@
 # mcp-server-iris: An InterSystems IRIS MCP server
 
+<a href="https://glama.ai/mcp/servers/@caretdev/mcp-server-iris">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@caretdev/mcp-server-iris/badge" />
+</a>
+
 ## Overview
 
 A [Model Context Protocol](https://modelcontextprotocol.io/introduction) server for InterSystems IRIS database interaction and automation.
