@@ -1,5 +1,6 @@
 import os
 import logging
+from importlib.metadata import version
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 import mcp.types as types
@@ -45,7 +46,7 @@ async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
 
 
 server_name = "InterSystems IRIS MCP Server"
-server_version = "0.1.0"
+server_version = version("mcp_server_iris")
 server = MCPServer(name=server_name, version=server_version, lifespan=server_lifespan)
 interoperability(server, logger)
 
