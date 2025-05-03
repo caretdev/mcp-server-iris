@@ -1,8 +1,9 @@
 import asyncio
 import uvicorn
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, Generic
 from mcp.server.stdio import stdio_server
 from mcp.server.sse import SseServerTransport
+from mcp.server.session import ServerSession, ServerSessionT
 from mcp.server.models import InitializationOptions
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from mcp.server.lowlevel import NotificationOptions, Server
@@ -11,11 +12,35 @@ from mcp.server.fastmcp.prompts import PromptManager
 from mcp.server.fastmcp.resources import ResourceManager
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp import Context as FastMCPContext
+from mcp.shared.context import LifespanContextT
 from mcp.server.fastmcp.utilities.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
 
 Context = FastMCPContext
+
+
+class MCPServerContext(Context, Generic[ServerSessionT, LifespanContextT]):
+    def __init__(
+        self,
+        *,
+        request_context,
+        fastmcp: FastMCP | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(request_context=request_context, fastmcp=fastmcp, **kwargs)
+
+    @property
+    def iris(self) -> any:
+        iris = self.request_context.lifespan_context["iris"]
+        assert iris, "IRIS connection not available"
+        return iris
+
+    @property
+    def db(self) -> any:
+        db = self.request_context.lifespan_context["db"]
+        assert db, "Database connection not available"
+        return db
 
 
 class Settings(BaseSettings):
@@ -96,15 +121,16 @@ class MCPServer(FastMCP):
     def version(self) -> str:
         return self._mcp_server.version
 
-    # def _setup_handlers(self) -> None:
-    #     """Set up core MCP protocol handlers."""
-    #     self._mcp_server.list_tools()(self.list_tools)
-    #     self._mcp_server.call_tool()(self.call_tool)
-    #     self._mcp_server.list_resources()(self.list_resources)
-    #     self._mcp_server.read_resource()(self.read_resource)
-    #     self._mcp_server.list_prompts()(self.list_prompts)
-    #     self._mcp_server.get_prompt()(self.get_prompt)
-    #     self._mcp_server.list_resource_templates()(self.list_resource_templates)
+    def get_context(self) -> "Context[ServerSession, object]":
+        """
+        Returns a Context object. Note that the context will only be valid
+        during a request; outside a request, most methods will error.
+        """
+        try:
+            request_context = self._mcp_server.request_context
+        except LookupError:
+            request_context = None
+        return MCPServerContext(request_context=request_context, fastmcp=self)
 
     def run(self, transport: Literal["stdio", "sse"] = "stdio") -> None:
         """Run the FastMCP server. Note this is a synchronous function.
