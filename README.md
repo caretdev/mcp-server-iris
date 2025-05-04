@@ -1,10 +1,10 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/caretdev-mcp-server-iris-badge.png)](https://mseep.ai/app/caretdev-mcp-server-iris)
-
-# mcp-server-iris: An InterSystems IRIS MCP server
-
+[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/def21561-5d36-4457-b4a8-ba819ac26918)
 <a href="https://glama.ai/mcp/servers/@caretdev/mcp-server-iris">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@caretdev/mcp-server-iris/badge" />
 </a>
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/caretdev-mcp-server-iris-badge.png)](https://mseep.ai/app/caretdev-mcp-server-iris)
+
+# mcp-server-iris: An InterSystems IRIS MCP server
 
 ## Overview
 
