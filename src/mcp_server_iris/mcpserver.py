@@ -98,6 +98,8 @@ class MCPServer(FastMCP):
         )
 
         self.settings = Settings(**settings)
+        configure_logging(self.settings.log_level)
+        logger.setLevel(self.settings.log_level.upper())
 
         self._tool_manager = ToolManager(
             warn_on_duplicate_tools=self.settings.warn_on_duplicate_tools
@@ -110,8 +112,13 @@ class MCPServer(FastMCP):
         )
 
         self._setup_handlers()
+        self._mcp_server.set_logging_level()(self.set_logging_level)
 
-        configure_logging(self.settings.log_level)
+    async def set_logging_level(self, level) -> None:
+        """Set the logging level for the server."""
+        logger.info(f"Logging level set to {level}")
+        logger.setLevel(level.upper())
+        configure_logging(level=level)
 
     @property
     def name(self) -> str:
@@ -138,7 +145,7 @@ class MCPServer(FastMCP):
         Args:
             transport: Transport protocol to use ("stdio" or "sse")
         """
-
+        logger.info(f"Running server with transport: {transport}")
         TRANSPORTS = Literal["stdio", "sse"]
         if transport not in TRANSPORTS.__args__:  # type: ignore
             raise ValueError(f"Unknown transport: {transport}")

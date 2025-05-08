@@ -1,14 +1,12 @@
 import os
-import logging
 from importlib.metadata import version
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 import mcp.types as types
 import iris as irisnative
-from mcp_server_iris.mcpserver import MCPServer, Context
+from mcp_server_iris.mcpserver import MCPServer, Context, logger
 from mcp_server_iris.interoperability import init as interoperability
 
-logger = logging.getLogger("mcp_server_iris")
 logger.info("Starting InterSystems IRIS MCP Server")
 
 
@@ -22,6 +20,7 @@ def get_db_config():
         "password": os.getenv("IRIS_PASSWORD", "SYS"),
     }
 
+    logger.info("Server configuration: iris://" + config["hostname"] + ":" + str(config["port"]) + "/" + config["namespace"])
     if not all([config["username"], config["password"], config["namespace"]]):
         raise ValueError("Missing required database configuration")
 
