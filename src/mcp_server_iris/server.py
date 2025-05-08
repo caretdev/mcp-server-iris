@@ -35,7 +35,8 @@ async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
         db = irisnative.connect(**config)
         iris = irisnative.createIRIS(db)
         yield {"db": db, "iris": iris}
-    except Exception:
+    except Exception as ex:
+        logger.error(f"Error connecting to IRIS: {ex}")
         db = None
         iris = None
         yield {"db": db, "iris": iris}
@@ -188,7 +189,10 @@ def main():
     args = parser.parse_args()
     server.settings.port = args.port
     server.settings.debug = args.debug
-    server.run(transport=args.transport)
+    try:
+        server.run(transport=args.transport)
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
 
 
 if __name__ == "__main__":
