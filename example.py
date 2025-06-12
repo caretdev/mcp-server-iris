@@ -20,10 +20,16 @@ class MCPClient:
     async def connect_to_server(self):
         """Connect to an MCP server"""
         server_params = StdioServerParameters(
-            command=sys.executable, args=["-m", "mcp_server_iris"], env=None
+            command=sys.executable, args=["-m", "mcp_server_iris"], env={
+                "IRIS_HOSTNAME": "localhost",
+                "IRIS_PORT": "1972",
+                "IRIS_NAMESPACE": "USER",
+                "IRIS_USERNAME": "_SYSTEM",
+                "IRIS_PASSWORD": "SYS",
+            }
         )
         # server_params = StdioServerParameters(
-        #     command="uvx", args=["mcp-server-iris"], env=None
+        #     command="uvx", args=["."],
         # )
 
         stdio_transport = await self.exit_stack.enter_async_context(

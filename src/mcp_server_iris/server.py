@@ -13,16 +13,16 @@ logger.info("Starting InterSystems IRIS MCP Server")
 def get_db_config():
     """Get database configuration from environment variables."""
     config = {
-        "hostname": os.getenv("IRIS_HOSTNAME", "localhost"),
+        "hostname": os.getenv("IRIS_HOSTNAME"),
         "port": int(os.getenv("IRIS_PORT", 1972)),
-        "namespace": os.getenv("IRIS_NAMESPACE", "USER"),
-        "username": os.getenv("IRIS_USERNAME", "_SYSTEM"),
-        "password": os.getenv("IRIS_PASSWORD", "SYS"),
+        "namespace": os.getenv("IRIS_NAMESPACE"),
+        "username": os.getenv("IRIS_USERNAME"),
+        "password": os.getenv("IRIS_PASSWORD"),
     }
 
-    logger.info("Server configuration: iris://" + config["hostname"] + ":" + str(config["port"]) + "/" + config["namespace"])
-    if not all([config["username"], config["password"], config["namespace"]]):
+    if not all([config["hostname"], config["username"], config["password"], config["namespace"]]):
         raise ValueError("Missing required database configuration")
+    logger.info(f"Server configuration: iris://{config["username"]}:{"x"*8}@{config["hostname"]}:{config["port"]}/{config["namespace"]}")
 
     return config
 
@@ -30,8 +30,13 @@ def get_db_config():
 @asynccontextmanager
 async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
     """Manage server startup and shutdown lifecycle."""
-    config = get_db_config()
     try:
+        config = get_db_config()
+    except ValueError:
+        yield {"db": None, "iris": None}
+        return
+    try:
+
         db = irisnative.connect(**config)
         iris = irisnative.createIRIS(db)
         yield {"db": db, "iris": iris}
