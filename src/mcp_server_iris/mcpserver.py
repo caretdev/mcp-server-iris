@@ -12,7 +12,7 @@ from mcp.server.fastmcp.prompts import PromptManager
 from mcp.server.fastmcp.resources import ResourceManager
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp import Context as FastMCPContext
-from mcp.shared.context import LifespanContextT
+from mcp.shared.context import LifespanContextT, RequestT
 from mcp.server.fastmcp.utilities.logging import configure_logging, get_logger
 
 logger = get_logger(__name__)
@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 Context = FastMCPContext
 
 
-class MCPServerContext(Context, Generic[ServerSessionT, LifespanContextT]):
+class MCPServerContext(Context, Generic[ServerSessionT, LifespanContextT, RequestT]):
     def __init__(
         self,
         *,
