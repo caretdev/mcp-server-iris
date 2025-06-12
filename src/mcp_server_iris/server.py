@@ -37,7 +37,7 @@ async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
         return
     try:
 
-        db = irisnative.connect(**config)
+        db = irisnative.connect(sharedmemory=False, **config)
         iris = irisnative.createIRIS(db)
         yield {"db": db, "iris": iris}
     except Exception as ex:
