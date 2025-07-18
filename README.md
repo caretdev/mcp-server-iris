@@ -6,6 +6,10 @@
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@caretdev/mcp-server-iris/badge" />
 </a>
 
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/caretdev-mcp-server-iris-badge.png)](https://mseep.ai/app/caretdev-mcp-server-iris)
+
+# mcp-server-iris: An InterSystems IRIS MCP server
+
 ## Overview
 
 A [Model Context Protocol](https://modelcontextprotocol.io/introduction) server for InterSystems IRIS database interaction and automation.

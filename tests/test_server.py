@@ -1,5 +1,6 @@
 import sys
 import pytest
+import json
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp_server_iris.server import server
@@ -41,13 +42,23 @@ async def test_params_in_tool():
 @pytest.mark.asyncio
 async def test_call_tool_execute_sql(iris_config):
     """Test calling execute_sql with a query."""
-    async with stdio_client(StdioServerParameters(command=sys.executable, args=["-m", "mcp_server_iris"], env=iris_config)) as (read, write):
+    async with stdio_client(
+        StdioServerParameters(
+            command=sys.executable, args=["-m", "mcp_server_iris"], env=iris_config
+        )
+    ) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
-            _ = await session.call_tool(
+            res = await session.call_tool(
                 "execute_sql",
                 {
                     "query": "select $namespace, $zversion",
                     "params": [],
                 },
             )
+            assert res is not None
+            assert not res.isError
+            assert res.content[0].type == "text"
+            text = res.content[0].text
+            assert len(text)
+            print(f"Result: {text}")

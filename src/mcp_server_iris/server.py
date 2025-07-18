@@ -1,29 +1,28 @@
 import os
-import logging
 from importlib.metadata import version
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 import mcp.types as types
 import iris as irisnative
-from mcp_server_iris.mcpserver import MCPServer, Context
+from mcp_server_iris.mcpserver import MCPServer, Context, logger
 from mcp_server_iris.interoperability import init as interoperability
 
-logger = logging.getLogger("mcp_server_iris")
 logger.info("Starting InterSystems IRIS MCP Server")
 
 
 def get_db_config():
     """Get database configuration from environment variables."""
     config = {
-        "hostname": os.getenv("IRIS_HOSTNAME", "localhost"),
+        "hostname": os.getenv("IRIS_HOSTNAME"),
         "port": int(os.getenv("IRIS_PORT", 1972)),
-        "namespace": os.getenv("IRIS_NAMESPACE", "USER"),
-        "username": os.getenv("IRIS_USERNAME", "_SYSTEM"),
-        "password": os.getenv("IRIS_PASSWORD", "SYS"),
+        "namespace": os.getenv("IRIS_NAMESPACE"),
+        "username": os.getenv("IRIS_USERNAME"),
+        "password": os.getenv("IRIS_PASSWORD"),
     }
 
-    if not all([config["username"], config["password"], config["namespace"]]):
+    if not all([config["hostname"], config["username"], config["password"], config["namespace"]]):
         raise ValueError("Missing required database configuration")
+    logger.info(f"Server configuration: iris://{config["username"]}:{"x"*8}@{config["hostname"]}:{config["port"]}/{config["namespace"]}")
 
     return config
 
@@ -31,12 +30,18 @@ def get_db_config():
 @asynccontextmanager
 async def server_lifespan(server: MCPServer) -> AsyncIterator[dict]:
     """Manage server startup and shutdown lifecycle."""
-    config = get_db_config()
     try:
-        db = irisnative.connect(**config)
+        config = get_db_config()
+    except ValueError:
+        yield {"db": None, "iris": None}
+        return
+    try:
+
+        db = irisnative.connect(sharedmemory=False, **config)
         iris = irisnative.createIRIS(db)
         yield {"db": db, "iris": iris}
-    except Exception:
+    except Exception as ex:
+        logger.error(f"Error connecting to IRIS: {ex}")
         db = None
         iris = None
         yield {"db": db, "iris": iris}
@@ -189,7 +194,10 @@ def main():
     args = parser.parse_args()
     server.settings.port = args.port
     server.settings.debug = args.debug
-    server.run(transport=args.transport)
+    try:
+        server.run(transport=args.transport)
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
 
 
 if __name__ == "__main__":

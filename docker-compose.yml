@@ -1,0 +1,10 @@
+services:
+  database:
+    image: containers.intersystems.com/intersystems/iris-community:2025.1
+    restart: always
+    ports:
+      - "1972:1972"
+      - "52773:52773"
+    command:
+      - -a
+      - iris session iris -U%SYS '##class(Security.Users).UnExpireUserPasswords("*")'
